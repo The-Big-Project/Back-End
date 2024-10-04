@@ -9,7 +9,7 @@ type refreshToken = {
 };
 
 const refreshTokenSchema = new Schema<refreshToken>({
-  userId: { type: String, unique: true },
+  userId: { type: String, unique: true, required: true },
   refreshToken: {
     type: String,
     required: [true, "No Token | Can not store a token without a token"],

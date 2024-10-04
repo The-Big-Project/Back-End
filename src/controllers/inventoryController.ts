@@ -1,14 +1,35 @@
 /** @format */
-import { type Response, type Request } from "express";
+import type { Response, Request, NextFunction } from "express";
 import inventoryModel from "../models/inventoryModel";
+import CustomError from "../utils/CustomError";
+import { Operations } from "../utils/Operations";
 
-export const getAllItems = (req: Request, res: Response): void => {
-  res.status(200).json({ status: "success", result: "Hello from the server!" });
+export const getItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.query.pageSize || !req.query.pageNumber)
+      throw new CustomError("Pagination info required", 412, "fail");
+    const pageSize = Number(req.query.pageSize);
+    const pageNumber = Number(req.query.pageNumber);
+    const QueryClass = new Operations(inventoryModel.find());
+    QueryClass.paginate(pageNumber, pageSize);
+    const result = await QueryClass.query;
+    console.log(result);
+
+    res.status(200).json({ status: "success", result });
+  } catch (e) {
+    if (e instanceof CustomError) next(e);
+    else if (e instanceof Error) next({ message: e.message, code: 404 });
+  }
 };
 
 export const addNewItem = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const newItem = req.body;
@@ -20,11 +41,6 @@ export const addNewItem = async (
       },
     });
   } catch (e) {
-    if (e instanceof Error)
-      // Type narrowing
-      res.status(500).json({
-        status: "fail",
-        message: e.message,
-      });
+    if (e instanceof Error) next(new CustomError(e.message, 403, "fail"));
   }
 };

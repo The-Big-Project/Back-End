@@ -7,7 +7,7 @@ type userData = {
 };
 export function generateJWTaccess(user: userData): string {
   const accessToken = jwt.sign(user, process.env.SECRET as string, {
-    expiresIn: "30s",
+    expiresIn: "30m",
   });
   return accessToken;
 }

@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import { generateJWTaccess, generateJWTrefresh } from "../utils/generateJWT";
 import refreshTokenModel from "../models/refreshTokenModel";
 import rotateRefreshToken from "../utils/rotateRefreshToken";
+import CustomError from "../utils/CustomError";
 dotenv.config({ path: "./config.env" });
 const secret = process.env.SECRET as string;
 
@@ -17,25 +18,42 @@ export const addNewUser = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const user = req.body;
+    // GETTING THE USER FROM THE REQUEST BODY
+    const user: user = req.body;
+
+    // ENCRYPTING THE PASSWORD WITH SALT
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
     user.password = hashedPassword;
-    await userModel.create(user);
-    const jwtToken = jwt.sign({ name: user.fname + user.lName }, secret);
-    const refreshToken = generateJWTrefresh({
+
+    // SORING THE USER IN THE DATABASE
+    const createdUser = await userModel.create(user);
+
+    // GENERATING TOKENS
+    const tokenData = {
       credential: user.fName + user.lName,
+    };
+    const accessToken = generateJWTaccess(tokenData);
+    const refreshToken = generateJWTrefresh(tokenData);
+
+    // STORING THE REFRESH TOKEN TO THE DATABASE
+    await refreshTokenModel.create({
+      refreshToken,
+      state: "active",
+      userId: user.id,
     });
-    await refreshTokenModel.create({ refreshToken });
+
+    // SENDING THE RESPONSE
     res
       .status(200)
       .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
       .json({
         status: "success",
-        token: jwtToken,
+        data: createdUser,
+        accessToken: accessToken,
       });
   } catch (e) {
-    if (e instanceof Error) next({ message: e.message, statusCode: 402 });
+    if (e instanceof Error) next(new CustomError(e.message, 403, "fail"));
   }
 };
 
@@ -84,7 +102,7 @@ export const loginUser = async (
         accessToken,
       });
   } catch (e) {
-    if (e instanceof Error) next({ message: e.message, statusCode: 402 });
+    if (e instanceof Error) next(new CustomError(e.message, 401, "fail"));
   }
 };
 
@@ -118,6 +136,6 @@ export const refreshUser = async (
         accessToken,
       });
   } catch (e) {
-    if (e instanceof Error) next({ message: e.message, statusCode: 402 });
+    if (e instanceof Error) next(new CustomError(e.message, 402, "fail"));
   }
 };

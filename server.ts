@@ -5,6 +5,7 @@ import { router as inventoryRouter } from "./src/routers/inentoryRoutes";
 import { router as userRouter } from "./src/routers/userRoutes";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config({ path: "./config.env" });
 const DB_PASSWORD = process.env.DATABASE_PASSWORD;
@@ -16,7 +17,13 @@ mongoose
   .then(() => console.log("DB connected successfully"))
   .catch((err) => console.log("failed to connect to the database, ERROR", err));
 
+const corsOptions = {
+  origin: "http://localhost:5173",
+};
+
 const app = express();
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
