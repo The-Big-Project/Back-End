@@ -15,6 +15,8 @@ interface inventoryItem {
   expectedExpiryDate: Date;
   origin: string;
   phoneNumber: Array<string>;
+  quantity: number;
+  sold: number;
 }
 
 const inventorySchema = new Schema<inventoryItem>({
@@ -53,6 +55,8 @@ const inventorySchema = new Schema<inventoryItem>({
     required: [true, "No Label | each item must have a label"],
   },
   phoneNumber: Array,
+  quantity: { type: Number, required: [true, "No quantity | It is required"] },
+  sold: { type: Number, default: 0 },
 });
 
 const inventoryModel = model<inventoryItem>("inventory", inventorySchema);

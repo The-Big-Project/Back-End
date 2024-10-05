@@ -15,14 +15,18 @@ export const getItems = async (
     const pageSize = Number(req.query.pageSize);
     const pageNumber = Number(req.query.pageNumber);
     const QueryClass = new Operations(inventoryModel.find());
-    QueryClass.paginate(pageNumber, pageSize);
-    const result = await QueryClass.query;
-    console.log(result);
+    QueryClass.paginate(pageNumber || 1, pageSize || 10);
+    const data = await QueryClass.query;
+    const documentCount = await inventoryModel.countDocuments();
 
-    res.status(200).json({ status: "success", result });
+    res
+      .status(200)
+      .json({ status: "success", count: documentCount, result: data });
   } catch (e) {
+    console.error(e);
     if (e instanceof CustomError) next(e);
-    else if (e instanceof Error) next({ message: e.message, code: 404 });
+    else if (e instanceof Error)
+      next({ message: "Internal server error", code: 400 });
   }
 };
 

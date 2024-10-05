@@ -4,10 +4,13 @@ import refreshTokenModel from "../models/refreshTokenModel";
 
 export default async function rotateRefreshToken(
   userId: string | number,
-  newToken: string
+  newToken: string,
+  token: string
 ): Promise<void> {
   try {
-    const deletedToken = await refreshTokenModel.findOneAndDelete({ userId });
+    const deletedToken = await refreshTokenModel.findOneAndDelete({
+      refreshToken: token,
+    });
     if (!deletedToken)
       throw new Error("Rotation Error | No previous refresh token");
     await refreshTokenModel.create({

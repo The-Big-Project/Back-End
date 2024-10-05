@@ -4,7 +4,7 @@ import { NextFunction, type Request, type Response } from "express";
 import dotenv from "dotenv";
 import app from "./server";
 import CustomError from "./src/utils/CustomError";
-import "./scriptINVENTORYITEMS";
+// import "./scriptINVENTORYITEMS";
 
 dotenv.config({ path: "./config.env" });
 

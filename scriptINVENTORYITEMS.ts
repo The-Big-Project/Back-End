@@ -15,6 +15,7 @@ function generateMockInventoryItems() {
     outPrice: faker.number.int({ min: 501, max: 1000 }),
     label: faker.commerce.department(),
     phoneNumber: [faker.phone.number()],
+    quantity: faker.number.int({ min: 15, max: 1200 }),
   };
 }
 

@@ -123,10 +123,17 @@ export const refreshUser = async (
       credential: phone || email,
     };
 
+    const auth = req.headers?.authorization;
+
+    //The old refresh token
+    const token = auth?.split(" ").at(1); //Because the token starts with "Bearer TOKEN"
+    if (!token) throw new Error("No Token | There is no token");
+    jwt.verify(token, process.env.SECRET as string);
+
     const accessToken = generateJWTaccess(user);
     const refreshToken = generateJWTrefresh(user);
 
-    rotateRefreshToken(userDB.id, refreshToken);
+    rotateRefreshToken(userDB.id, refreshToken, token);
 
     res
       .status(203)
