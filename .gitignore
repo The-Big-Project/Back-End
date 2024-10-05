@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 config.env
+scriptINVENTORYITEMS.ts
 
 # Editor directories and files
 .vscode/*
