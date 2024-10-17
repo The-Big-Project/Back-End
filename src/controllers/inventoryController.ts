@@ -14,14 +14,19 @@ export const getItems = async (
       throw new CustomError("Pagination info required", 412, "fail");
     const pageSize = Number(req.query.pageSize);
     const pageNumber = Number(req.query.pageNumber);
-    const QueryClass = new Operations(inventoryModel.find());
-    QueryClass.paginate(pageNumber || 1, pageSize || 10);
+    const searchQuery = req.query.search || "";
+    const QueryClass = new Operations(inventoryModel);
+    QueryClass.search(searchQuery as string).paginate(
+      pageNumber || 0,
+      pageSize || 12
+    );
+
     const data = await QueryClass.query;
-    const documentCount = await inventoryModel.countDocuments();
+    const resultCount = await QueryClass.getCount();
 
     res
       .status(200)
-      .json({ status: "success", count: documentCount, result: data });
+      .json({ status: "success", count: resultCount, result: data });
   } catch (e) {
     console.error(e);
     if (e instanceof CustomError) next(e);

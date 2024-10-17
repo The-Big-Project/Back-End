@@ -2,7 +2,7 @@
 
 import { model, Schema } from "mongoose";
 
-interface inventoryItem {
+export interface inventoryItem {
   createdAt: Date;
   amountType: "quantity" | "weight";
   specialCalculation: (inPrice: number, outPrice: number) => number;
@@ -17,6 +17,8 @@ interface inventoryItem {
   phoneNumber: Array<string>;
   quantity: number;
   sold: number;
+  barCode: string;
+  qrCode: string;
 }
 
 const inventorySchema = new Schema<inventoryItem>({
@@ -57,6 +59,8 @@ const inventorySchema = new Schema<inventoryItem>({
   phoneNumber: Array,
   quantity: { type: Number, required: [true, "No quantity | It is required"] },
   sold: { type: Number, default: 0 },
+  barCode: String,
+  qrCode: String,
 });
 
 const inventoryModel = model<inventoryItem>("inventory", inventorySchema);
